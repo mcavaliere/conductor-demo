@@ -3,8 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Link from "next/link";
 import {
   ClerkProvider,
-  SignedIn,
-  SignedOut,
+  Show,
   SignInButton,
   SignUpButton,
   UserButton,
@@ -50,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               conductor-demo
             </Link>
             <div className="flex items-center gap-2">
-              <SignedOut>
+              <Show when="signed-out">
                 <SignInButton mode="modal">
                   <Button variant="ghost" size="sm">
                     Sign in
@@ -59,10 +58,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <SignUpButton mode="modal">
                   <Button size="sm">Sign up</Button>
                 </SignUpButton>
-              </SignedOut>
-              <SignedIn>
+              </Show>
+              <Show when="signed-in">
                 <UserButton />
-              </SignedIn>
+              </Show>
             </div>
           </header>
           {children}
