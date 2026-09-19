@@ -41,14 +41,30 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <html
         lang="en"
-        className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
         suppressHydrationWarning
+        className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
       >
         <body className="min-h-full flex flex-col" suppressHydrationWarning>
           <header className="flex h-14 items-center justify-between border-b border-border px-6">
-            <Link href="/" className="text-sm font-semibold tracking-tight">
-              conductor-demo
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-sm font-semibold tracking-tight">
+                conductor-demo
+              </Link>
+              <Link
+                href="/blog"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Blog
+              </Link>
+              <Show when="signed-in">
+                <Link
+                  href="/admin"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Admin
+                </Link>
+              </Show>
+            </div>
             <div className="flex items-center gap-2">
               <Show when="signed-out">
                 <SignInButton mode="modal">
