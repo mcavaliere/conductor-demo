@@ -34,20 +34,36 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <ClerkProvider
       appearance={{
         variables: {
-          colorPrimary: "#171717",
+          colorPrimary: "#00ff9c",
+          colorBackground: "#0a1410",
+          colorInputText: "#e6fff2",
+          colorText: "#e6fff2",
+          colorTextSecondary: "#8fb8a5",
+          colorNeutral: "#00ff9c",
           borderRadius: "0.625rem",
+        },
+        elements: {
+          card: "border border-[#00ff9c33] shadow-[0_0_60px_-20px_#00ff9c]",
+          formButtonPrimary:
+            "shadow-[0_0_18px_-2px_#00ff9c] hover:shadow-[0_0_28px_0_#00ff9c]",
         },
       }}
     >
       <html
         lang="en"
-        className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
+        className={cn("dark", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
         suppressHydrationWarning
       >
         <body className="min-h-full flex flex-col" suppressHydrationWarning>
-          <header className="flex h-14 items-center justify-between border-b border-border px-6">
-            <Link href="/" className="text-sm font-semibold tracking-tight">
-              conductor-demo
+          <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background/70 px-6 backdrop-blur-md">
+            <Link
+              href="/"
+              className="group flex items-center gap-2 font-mono text-sm font-semibold tracking-tight"
+            >
+              <span className="inline-block size-2 rounded-full bg-primary shadow-[0_0_10px_var(--neon)] transition-transform group-hover:scale-125" />
+              <span>
+                conductor<span className="neon-text">-demo</span>
+              </span>
             </Link>
             <div className="flex items-center gap-2">
               <Show when="signed-out">
@@ -57,7 +73,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   </Button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <Button size="sm">Sign up</Button>
+                  <Button size="sm" className="neon-glow">
+                    Sign up
+                  </Button>
                 </SignUpButton>
               </Show>
               <Show when="signed-in">
