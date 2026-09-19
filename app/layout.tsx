@@ -44,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         suppressHydrationWarning
         className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
       >
-        <body className="min-h-full flex flex-col">
+        <body className="min-h-full flex flex-col" suppressHydrationWarning>
           <header className="flex h-14 items-center justify-between border-b border-border px-6">
             <div className="flex items-center gap-4">
               <Link href="/" className="text-sm font-semibold tracking-tight">

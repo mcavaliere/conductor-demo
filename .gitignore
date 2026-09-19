@@ -49,3 +49,7 @@ dist/
 .cursor/
 .agents/
 .devin/
+
+# storybook
+*storybook.log
+storybook-static
