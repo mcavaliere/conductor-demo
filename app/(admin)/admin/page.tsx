@@ -23,7 +23,7 @@ export default async function AdminDashboard() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold tracking-tight">Posts</h1>
-        <Button render={<Link href="/admin/new">New post</Link>} />
+        <Button nativeButton={false} render={<Link href="/admin/new">New post</Link>} />
       </div>
 
       {posts.length === 0 ? (

@@ -22,7 +22,12 @@ import type { Post } from "@/lib/posts";
 export function PostRowActions({ post }: { post: Post }) {
   return (
     <div className="flex items-center justify-end gap-1">
-      <Button size="sm" variant="ghost" render={<Link href={`/admin/${post.id}/edit`}>Edit</Link>} />
+      <Button
+        size="sm"
+        variant="ghost"
+        nativeButton={false}
+        render={<Link href={`/admin/${post.id}/edit`}>Edit</Link>}
+      />
 
       <form action={post.status === "published" ? unpublishPost : publishPost}>
         <input type="hidden" name="id" value={post.id} />

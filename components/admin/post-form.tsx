@@ -74,7 +74,11 @@ export function PostForm({ post }: { post?: Post }) {
 
       <div className="flex items-center gap-2">
         <SubmitButton isEdit={Boolean(post)} />
-        <Button variant="ghost" render={<Link href="/admin">Cancel</Link>} />
+        <Button
+          variant="ghost"
+          nativeButton={false}
+          render={<Link href="/admin">Cancel</Link>}
+        />
       </div>
     </form>
   );
