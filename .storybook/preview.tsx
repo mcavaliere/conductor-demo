@@ -1,6 +1,9 @@
 import type { Preview } from '@storybook/nextjs-vite'
+import { sb } from 'storybook/test'
 import '../app/globals.css'
 import './fonts.css'
+
+sb.mock(import('../app/(admin)/admin/actions.ts'))
 
 const preview: Preview = {
   decorators: [
