@@ -7,6 +7,8 @@
  * swap for a real Prisma-backed implementation later.
  */
 
+import { randomUUID } from "node:crypto";
+
 export interface Post {
   id: string;
   slug: string;
@@ -83,4 +85,58 @@ export async function getPublishedPosts(): Promise<Post[]> {
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   const post = posts.find((post) => post.slug === slug && post.published);
   return post ?? null;
+}
+
+/** Every post (published and draft), newest first. Used by the admin dashboard. */
+export async function getAllPosts(): Promise<Post[]> {
+  return [...posts].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+/** A single post by id, regardless of status, or null. Used by the admin editor. */
+export async function getPostById(id: string): Promise<Post | null> {
+  const post = posts.find((post) => post.id === id);
+  return post ?? null;
+}
+
+/** Input for creating a post — everything except server-assigned fields. */
+export type CreatePostInput = Omit<Post, "id" | "createdAt" | "updatedAt">;
+
+/** Creates a new post and returns it. */
+export async function createPost(data: CreatePostInput): Promise<Post> {
+  const now = new Date();
+  const post: Post = {
+    ...data,
+    id: randomUUID(),
+    createdAt: now,
+    updatedAt: now,
+  };
+  posts.push(post);
+  return post;
+}
+
+/** Partial update of an existing post's editable fields. Returns null if not found. */
+export type UpdatePostInput = Partial<CreatePostInput>;
+
+export async function updatePost(
+  id: string,
+  data: UpdatePostInput
+): Promise<Post | null> {
+  const index = posts.findIndex((post) => post.id === id);
+  if (index === -1) return null;
+
+  const updated: Post = {
+    ...posts[index],
+    ...data,
+    updatedAt: new Date(),
+  };
+  posts[index] = updated;
+  return updated;
+}
+
+/** Deletes a post by id. Returns true if a post was removed. */
+export async function deletePost(id: string): Promise<boolean> {
+  const index = posts.findIndex((post) => post.id === id);
+  if (index === -1) return false;
+  posts.splice(index, 1);
+  return true;
 }
