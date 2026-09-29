@@ -5,18 +5,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
+import { createPost, updatePost } from "@/app/(admin)/admin/actions";
 import type { Post } from "@/lib/posts";
 
-const textareaClassName =
-  "min-h-32 w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
+export function PostForm({ post }: { post?: Post }) {
+  const action = post ? updatePost : createPost;
 
-export function PostForm({
-  post,
-  action,
-}: {
-  post?: Post;
-  action: (formData: FormData) => Promise<void>;
-}) {
   return (
     <form action={action} className="flex flex-col gap-5">
       {post && <input type="hidden" name="id" value={post.id} />}
@@ -31,58 +27,57 @@ export function PostForm({
         />
       </Field>
 
-      <Field label="Slug" htmlFor="slug">
+      <Field label="Slug" htmlFor="slug" hint="Leave blank to auto-generate from the title.">
         <Input
           id="slug"
           name="slug"
-          required
           defaultValue={post?.slug ?? ""}
           placeholder="a-great-blog-post"
         />
       </Field>
 
       <Field label="Excerpt" htmlFor="excerpt">
-        <textarea
+        <Textarea
           id="excerpt"
           name="excerpt"
           rows={2}
           defaultValue={post?.excerpt ?? ""}
           placeholder="A short summary shown on the blog index."
-          className={textareaClassName}
         />
       </Field>
 
-      <Field label="Content" htmlFor="content">
-        <textarea
-          id="content"
-          name="content"
-          required
-          rows={10}
-          defaultValue={post?.content ?? ""}
-          placeholder="<p>Post body (HTML)</p>"
-          className={textareaClassName}
+      <Field label="Cover image URL" htmlFor="coverImageUrl">
+        <Input
+          id="coverImageUrl"
+          name="coverImageUrl"
+          type="url"
+          defaultValue={post?.coverImageUrl ?? ""}
+          placeholder="https://example.com/cover.jpg"
         />
       </Field>
 
-      <div className="flex items-center gap-2">
-        <input
-          id="published"
-          name="published"
-          type="checkbox"
-          defaultChecked={post?.published ?? false}
-          className="size-4 rounded border-input"
-        />
-        <Label htmlFor="published" className="cursor-pointer">
-          Published
-        </Label>
-      </div>
+      <Field label="Status" htmlFor="status">
+        <select
+          id="status"
+          name="status"
+          defaultValue={post?.status ?? "draft"}
+          className="h-8 w-40 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+        </select>
+      </Field>
+
+      <Field label="Body" htmlFor="body">
+        <RichTextEditor name="body" defaultValue={post?.body ?? ""} />
+      </Field>
 
       <div className="flex items-center gap-2">
         <SubmitButton isEdit={Boolean(post)} />
         <Button
-          variant="outline"
+          variant="ghost"
           nativeButton={false}
-          render={<Link href="/admin/posts">Cancel</Link>}
+          render={<Link href="/admin">Cancel</Link>}
         />
       </div>
     </form>
@@ -92,16 +87,19 @@ export function PostForm({
 function Field({
   label,
   htmlFor,
+  hint,
   children,
 }: {
   label: string;
   htmlFor: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }

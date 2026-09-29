@@ -1,0 +1,30 @@
+// use prisma-8
+
+// Blog CMS content model.
+//
+// Timestamps use the *String* temporal types (TimestamptzString) on purpose:
+// the Node runtime has no global `Temporal`, and the plain Timestamptz type
+// would throw RUNTIME.TEMPORAL_UNAVAILABLE on the first read. The String forms
+// carry Postgres's own text and need no polyfill.
+
+enum post_status {
+  @@type("pg/text@1")
+  draft     = "draft"
+  published = "published"
+}
+
+model Post {
+  id            String            @id @default(uuid())
+  title         String
+  slug          String            @unique
+  excerpt       String?
+  body          String            // sanitized rich-text HTML
+  coverImageUrl String?
+  status        post_status       @default(draft)
+  publishedAt   TimestamptzString?
+  authorId      String            // Clerk user id
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+
+  @@index([status, publishedAt])
+}
