@@ -6,10 +6,12 @@ import { redirect } from "next/navigation";
 import { db } from "@/src/prisma/db";
 import { uniqueSlug } from "@/lib/slug";
 import { sanitizePostBody } from "@/lib/sanitize";
+import { isAdminClaims } from "@/lib/admin";
 
 async function requireUserId(): Promise<string> {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   if (!userId) throw new Error("Unauthorized");
+  if (!isAdminClaims(sessionClaims)) throw new Error("Forbidden: admin role required");
   return userId;
 }
 
