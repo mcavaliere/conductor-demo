@@ -78,3 +78,9 @@ export async function getPublishedPosts(): Promise<Post[]> {
     .filter((post) => post.published)
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
+
+/** A single published post by slug, or null. Unpublished/draft posts return null. */
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const post = posts.find((post) => post.slug === slug && post.published);
+  return post ?? null;
+}
