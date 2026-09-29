@@ -118,6 +118,27 @@ export async function deletePost(formData: FormData): Promise<void> {
   revalidatePost(existing?.slug);
 }
 
+export async function deletePosts(ids: string[]): Promise<void> {
+  await requireUserId();
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    !ids.every((id) => typeof id === "string" && id)
+  ) {
+    throw new Error("Missing post ids");
+  }
+
+  // `.delete()` removes a single row; `deleteAll()` removes every match and
+  // returns the deleted rows so we can revalidate their pages.
+  const deleted = await db.orm.public.Post
+    .select("slug")
+    .where((p) => p.id.in(ids))
+    .deleteAll();
+
+  revalidatePost();
+  for (const { slug } of deleted) revalidatePath(`/blog/${slug}`);
+}
+
 export async function publishPost(formData: FormData): Promise<void> {
   await requireUserId();
   const id = String(formData.get("id") ?? "");
