@@ -44,12 +44,6 @@ node_modules/
 dist/
 .env
 
-# Prisma-generated agent skills (regenerate with `prisma skills sync`)
-.claude/
-.cursor/
-.agents/
-.devin/
-
 # storybook
 *storybook.log
 storybook-static

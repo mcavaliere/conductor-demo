@@ -1,0 +1,33 @@
+// Blog CMS content model.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PostStatus {
+  draft
+  published
+
+  @@map("post_status")
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  title         String
+  slug          String     @unique
+  excerpt       String?
+  body          String // sanitized rich-text HTML
+  coverImageUrl String?
+  status        PostStatus @default(draft)
+  publishedAt   DateTime?  @db.Timestamptz
+  authorId      String // Clerk user id
+  createdAt     DateTime   @default(now()) @db.Timestamptz
+  updatedAt     DateTime   @updatedAt @db.Timestamptz
+
+  @@index([status, publishedAt])
+  @@map("post")
+}

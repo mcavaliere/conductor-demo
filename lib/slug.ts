@@ -23,9 +23,10 @@ export async function uniqueSlug(
   let n = 1;
 
   while (true) {
-    const existing = await db.orm.public.Post.select("id")
-      .where({ slug: candidate })
-      .first();
+    const existing = await db.post.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
     if (!existing || existing.id === excludeId) return candidate;
     n += 1;
     candidate = `${root}-${n}`;
