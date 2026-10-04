@@ -1,5 +1,4 @@
 import { getPublishedPosts } from "@/lib/posts";
-import { toDate } from "@/lib/format";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -22,7 +21,7 @@ export async function GET() {
     .map((post) => {
       const link = `${SITE_URL}/blog/${post.slug}`;
       const description = post.excerpt ?? "";
-      const pubDate = toDate(post.publishedAt ?? post.createdAt).toUTCString();
+      const pubDate = (post.publishedAt ?? post.createdAt).toUTCString();
       return `
     <item>
       <title>${escapeXml(post.title)}</title>

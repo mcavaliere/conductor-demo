@@ -50,15 +50,17 @@ export async function createPost(formData: FormData): Promise<void> {
     String(formData.get("slug") ?? "").trim() || title
   );
 
-  await db.orm.public.Post.create({
-    title,
-    slug,
-    excerpt: String(formData.get("excerpt") ?? "").trim() || null,
-    body,
-    coverImageUrl: parseUrl(formData.get("coverImageUrl")),
-    status,
-    authorId: userId,
-    publishedAt: status === "published" ? new Date().toISOString() : null,
+  await db.post.create({
+    data: {
+      title,
+      slug,
+      excerpt: String(formData.get("excerpt") ?? "").trim() || null,
+      body,
+      coverImageUrl: parseUrl(formData.get("coverImageUrl")),
+      status,
+      authorId: userId,
+      publishedAt: status === "published" ? new Date() : null,
+    },
   });
 
   revalidatePost(slug);
@@ -71,7 +73,7 @@ export async function updatePost(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing post id");
 
-  const existing = await db.orm.public.Post.first({ id });
+  const existing = await db.post.findUnique({ where: { id } });
   if (!existing) throw new Error("Post not found");
 
   const title = String(formData.get("title") ?? "").trim();
@@ -88,18 +90,19 @@ export async function updatePost(formData: FormData): Promise<void> {
   // Set publishedAt when moving into published; keep the original stamp if it
   // was already published; clear it when moving back to draft.
   const publishedAt =
-    status === "published"
-      ? existing.publishedAt ?? new Date().toISOString()
-      : null;
+    status === "published" ? existing.publishedAt ?? new Date() : null;
 
-  await db.orm.public.Post.where({ id }).update({
-    title,
-    slug,
-    excerpt: String(formData.get("excerpt") ?? "").trim() || null,
-    body,
-    coverImageUrl: parseUrl(formData.get("coverImageUrl")),
-    status,
-    publishedAt,
+  await db.post.update({
+    where: { id },
+    data: {
+      title,
+      slug,
+      excerpt: String(formData.get("excerpt") ?? "").trim() || null,
+      body,
+      coverImageUrl: parseUrl(formData.get("coverImageUrl")),
+      status,
+      publishedAt,
+    },
   });
 
   revalidatePost(slug);
@@ -112,10 +115,11 @@ export async function deletePost(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing post id");
 
-  const existing = await db.orm.public.Post.select("slug").first({ id });
-  await db.orm.public.Post.where({ id }).delete();
+  const existing = await db.post.findUnique({ where: { id }, select: { slug: true } });
+  if (!existing) return;
+  await db.post.delete({ where: { id } });
 
-  revalidatePost(existing?.slug);
+  revalidatePost(existing.slug);
 }
 
 export async function deletePosts(ids: string[]): Promise<void> {
@@ -128,12 +132,10 @@ export async function deletePosts(ids: string[]): Promise<void> {
     throw new Error("Missing post ids");
   }
 
-  // `.delete()` removes a single row; `deleteAll()` removes every match and
-  // returns the deleted rows so we can revalidate their pages.
-  const deleted = await db.orm.public.Post
-    .select("slug")
-    .where((p) => p.id.in(ids))
-    .deleteAll();
+  const [deleted] = await db.$transaction([
+    db.post.findMany({ where: { id: { in: ids } }, select: { slug: true } }),
+    db.post.deleteMany({ where: { id: { in: ids } } }),
+  ]);
 
   revalidatePost();
   for (const { slug } of deleted) revalidatePath(`/blog/${slug}`);
@@ -144,14 +146,15 @@ export async function publishPost(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing post id");
 
-  const post = await db.orm.public.Post
-    .select("slug", "publishedAt")
-    .first({ id });
+  const post = await db.post.findUnique({
+    where: { id },
+    select: { slug: true, publishedAt: true },
+  });
   if (!post) throw new Error("Post not found");
 
-  await db.orm.public.Post.where({ id }).update({
-    status: "published",
-    publishedAt: post.publishedAt ?? new Date().toISOString(),
+  await db.post.update({
+    where: { id },
+    data: { status: "published", publishedAt: post.publishedAt ?? new Date() },
   });
 
   revalidatePost(post.slug);
@@ -162,11 +165,9 @@ export async function unpublishPost(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing post id");
 
-  const post = await db.orm.public.Post.select("slug").first({ id });
-  await db.orm.public.Post.where({ id }).update({
-    status: "draft",
-    publishedAt: null,
-  });
+  const post = await db.post.findUnique({ where: { id }, select: { slug: true } });
+  if (!post) return;
+  await db.post.update({ where: { id }, data: { status: "draft", publishedAt: null } });
 
-  revalidatePost(post?.slug);
+  revalidatePost(post.slug);
 }

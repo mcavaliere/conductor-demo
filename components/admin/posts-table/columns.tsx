@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PostRowActions } from "@/components/admin/post-row-actions";
-import { formatDate, toDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import type { Post } from "@/lib/posts";
 
 export const columns: ColumnDef<Post>[] = [
@@ -84,10 +84,8 @@ export const columns: ColumnDef<Post>[] = [
         {formatDate(row.original.updatedAt)}
       </span>
     ),
-    // Timestamps are Postgres strings, so compare parsed dates.
     sortingFn: (a, b) =>
-      toDate(a.original.updatedAt).getTime() -
-      toDate(b.original.updatedAt).getTime(),
+      a.original.updatedAt.getTime() - b.original.updatedAt.getTime(),
   },
   {
     id: "actions",

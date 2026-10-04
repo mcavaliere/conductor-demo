@@ -25,6 +25,7 @@ const TITLES = [
 const posts: Post[] = TITLES.map((title, i) => {
   const day = String(28 - i).padStart(2, "0")
   const status = i % 3 === 2 ? "draft" : "published"
+  const timestamp = new Date(`2026-09-${day}T12:00:00Z`)
   return {
     id: `post-${i + 1}`,
     title,
@@ -33,10 +34,10 @@ const posts: Post[] = TITLES.map((title, i) => {
     body: `<p>${title}</p>`,
     coverImageUrl: null,
     status,
-    publishedAt: status === "published" ? `2026-09-${day} 12:00:00+00` : null,
+    publishedAt: status === "published" ? timestamp : null,
     authorId: "user_1",
-    createdAt: `2026-09-${day} 12:00:00+00`,
-    updatedAt: `2026-09-${day} 12:00:00+00`,
+    createdAt: timestamp,
+    updatedAt: timestamp,
   }
 })
 

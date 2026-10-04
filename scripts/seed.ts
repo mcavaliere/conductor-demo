@@ -22,28 +22,34 @@ const posts = [
 
 for (const p of posts) {
   const slug = slugify(p.title);
-  const existing = await db.orm.public.Post.select("id").where({ slug }).first();
+  const existing = await db.post.findUnique({ where: { slug }, select: { id: true } });
+  const publishedAt = p.status === "published" ? new Date() : null;
 
   if (existing) {
-    await db.orm.public.Post.where({ id: existing.id }).update({
-      title: p.title,
-      excerpt: p.excerpt,
-      body: p.body,
-      status: p.status,
-      publishedAt: p.status === "published" ? new Date().toISOString() : null,
+    await db.post.update({
+      where: { id: existing.id },
+      data: {
+        title: p.title,
+        excerpt: p.excerpt,
+        body: p.body,
+        status: p.status,
+        publishedAt,
+      },
     });
   } else {
-    await db.orm.public.Post.create({
-      title: p.title,
-      slug,
-      excerpt: p.excerpt,
-      body: p.body,
-      status: p.status,
-      authorId: AUTHOR,
-      publishedAt: p.status === "published" ? new Date().toISOString() : null,
+    await db.post.create({
+      data: {
+        title: p.title,
+        slug,
+        excerpt: p.excerpt,
+        body: p.body,
+        status: p.status,
+        authorId: AUTHOR,
+        publishedAt,
+      },
     });
   }
   console.log(`seeded: ${slug} (${p.status})`);
 }
 
-await db.close();
+await db.$disconnect();
