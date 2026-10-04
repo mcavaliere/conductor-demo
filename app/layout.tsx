@@ -49,6 +49,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         suppressHydrationWarning
         className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
       >
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        </head>
         <body className="min-h-full flex flex-col" suppressHydrationWarning>
           <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background/70 px-6 backdrop-blur-md">
             <div className="flex items-center gap-6">
