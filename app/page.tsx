@@ -20,23 +20,6 @@ export default async function Home() {
           You&apos;re authenticated. This page is protected by Clerk — signed-out
           visitors are routed straight back to the sign-in gate.
         </p>
-
-        <div className="mt-2 grid w-full grid-cols-3 gap-3 font-mono text-xs">
-          {[
-            { label: "Auth", value: "SECURE" },
-            { label: "Session", value: "ACTIVE" },
-            { label: "Latency", value: "12ms" },
-          ].map((stat) => (
-            <div key={stat.label} className="neon-panel rounded-lg px-3 py-4">
-              <div className="text-[0.65rem] uppercase tracking-widest text-muted-foreground">
-                {stat.label}
-              </div>
-              <div className="mt-1 text-sm font-semibold text-primary">
-                {stat.value}
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
